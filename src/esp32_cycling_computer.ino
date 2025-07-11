@@ -9,15 +9,15 @@
 #include <Adafruit_ST7735.h>
 #include <TinyGPSPlus.h>
 
-// ---------------- Display Setup ----------------
+// Display Setup
 #define TFT_CS     5
 #define TFT_RST    22
 #define TFT_DC     21
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
-// ---------------- GPS Setup ----------------
+// GPS Setup
 #define GPS_RX 16  // Connect to GPS TX
-#define GPS_TX 17  // Connect to GPS RX (optional, not needed unless sending data)
+#define GPS_TX 17  // Connect to GPS RX
 HardwareSerial gpsSerial(2);
 TinyGPSPlus gps;
 
@@ -26,15 +26,15 @@ double lastLat = 0;
 double lastLng = 0;
 bool hasLastLocation = false;
 
-const float MIN_VALID_SPEED_MPH = 0.5; // <<--- NEW: Threshold to reduce noise in speed readings
+const float MIN_VALID_SPEED_MPH = 0.5; // Threshold to reduce noise in speed readings
 
-// ---------------- BLE UUIDs ----------------
+// BLE UUIDs
 static BLEUUID hrServiceUUID((uint16_t)0x180D);
 static BLEUUID hrMeasurementUUID((uint16_t)0x2A37);
 static BLEUUID powerMeterServiceUUID("00001818-0000-1000-8000-00805f9b34fb");
 static BLEUUID powerMeterMeasurementUUID((uint16_t)0x2A63);
 
-// ---------------- BLE Globals ----------------
+// BLE Globals
 BLEClient* pClient;
 BLERemoteCharacteristic* pRemoteCharacteristic;
 BLEClient* pPowerMeterClient;
@@ -45,8 +45,8 @@ bool powerMeterConnected = false;
 bool connectingHRM = false;
 bool connectingPowerMeter = false;
 
-BLEAddress hrmAddress("ec:72:5d:a5:a4:64");  // Replace with your HRM address
-BLEAddress powerMeterAddress("da:31:1b:7c:9f:c9");  // Replace with your Power Meter address
+BLEAddress hrmAddress("ec:72:5d:a5:a4:64");  // Fixed HRM address
+BLEAddress powerMeterAddress("da:31:1b:7c:9f:c9");  // Fixed Power Meter address
 
 int heartRate = 0;
 int power = 0;
@@ -56,7 +56,7 @@ int powerReadingsCount = 0;
 BLEAdvertisedDevice* myDevice = nullptr;
 BLEAdvertisedDevice* powerMeterDevice = nullptr;
 
-// ---------------- BLE Scan Callback ----------------
+// BLE Scan Callback
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice advertisedDevice) {
     Serial.print("Found BLE device: ");
@@ -76,7 +76,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
   }
 };
 
-// ---------------- HRM Notify Callback ----------------
+// HRM Notify Callback
 static void hrmNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   if (length >= 2) {
     heartRate = pData[1];
@@ -94,7 +94,7 @@ static void hrmNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic,
   }
 }
 
-// ---------------- Power Notify Callback ----------------
+// Power Notify Callback
 static void powerMeterNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   if (length >= 3) {
     power = (pData[1] << 8) | pData[2];
@@ -122,7 +122,7 @@ static void powerMeterNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacte
   }
 }
 
-// ---------------- Connect to HRM ----------------
+// Connect to HRM
 bool connectToHRM() {
   if (myDevice == nullptr) return false;
 
@@ -141,7 +141,7 @@ bool connectToHRM() {
   return true;
 }
 
-// ---------------- Connect to Power Meter ----------------
+// Connect to Power Meter
 bool connectToPowerMeter() {
   if (powerMeterDevice == nullptr) return false;
 
@@ -160,7 +160,7 @@ bool connectToPowerMeter() {
   return true;
 }
 
-// ---------------- Setup ----------------
+// Setup
 void setup() {
   Serial.begin(115200);
 
@@ -182,7 +182,7 @@ void setup() {
   pBLEScan->start(10, false);
 }
 
-// ---------------- Loop ----------------
+// Loop
 void loop() {
   // BLE reconnections
   if (!hrmConnected && connectingHRM) {
@@ -223,7 +223,7 @@ void loop() {
     float speedKmh = gps.speed.kmph();
     float speedMph = speedKmh * 0.621371;
 
-    // -------- Filter out noise ----------
+    // Filter out noise
     if (speedMph < MIN_VALID_SPEED_MPH) {
       speedMph = 0.0;
     }
