@@ -27,7 +27,7 @@ The code demonstrates real-time sensor integration, data processing, and embedde
 - ST7735S TFT display (SPI interface)  
 - BLE heart rate monitor (e.g., chest strap)  
 - BLE power meter (e.g., Garmin Vector 3)  
-- GPS module (connected via UART)  
+- GPS Neo 6m module (connected via UART)  
 
 ---
 
